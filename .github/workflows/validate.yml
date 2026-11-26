@@ -1,0 +1,28 @@
+name: Validate NixOS Hyprland configuration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  syntax:
+    name: Nix and shell syntax
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v31
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+      - name: Parse Nix expressions
+        run: |
+          nix-instantiate --parse flake.nix >/dev/null
+          nix-instantiate --parse configuration.nix >/dev/null
+      - name: Check shell syntax
+        run: find . -type f -name '*.sh' -print0 | xargs -0 -r -n1 bash -n
