@@ -18,7 +18,7 @@ Muted Catppuccin Mocha/graphite styling, slim Waybar, Kitty, Fuzzel and SwayNC. 
 ## Important install warning
 This repository is a configuration starting point, not a tested one-click installer. hardware-configuration.nix is machine-generated and intentionally not included. Generate it from the NixOS live installer and place it beside configuration.nix.
 
-The configuration deliberately does not set a bootloader. Before installing, inspect the existing Windows EFI System Partition and configure a bootloader that preserves Windows Boot Manager. Do not blindly enable or replace EFI boot entries. Follow docs/installation.md carefully.
+The configuration deliberately does not set a bootloader. Before installing, inspect the existing Windows EFI System Partition and configure a bootloader that preserves Windows Boot Manager. Do not blindly enable or replace EFI boot entries. Follow docs/installation.md carefully. After installation and first login, run bash shared/install-dotfiles.sh from the cloned repository to link the user desktop configuration. Back up existing config directories first.
 
 ## Repository layout
 - flake.nix — NixOS flake output .#z16.
