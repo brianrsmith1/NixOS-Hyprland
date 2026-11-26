@@ -61,6 +61,9 @@ in
     extraPortals = [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal-gtk ];
   };
 
+  # AMDGPU firmware is required for the Radeon 680M and RX 6500M.
+  hardware.enableRedistributableFirmware = true;
+  services.xserver.videoDrivers = [ "amdgpu" ];
   hardware.graphics.enable = true;
   hardware.graphics.enable32Bit = true;
 
