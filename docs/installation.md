@@ -62,7 +62,6 @@ bash shared/install-dotfiles.sh
 The script backs up existing config directories with a timestamp suffix, links the Hyprland/Waybar/Fish/Kitty/Fuzzel/SwayNC settings, and installs the discrete-GPU helper in ~/.local/bin. Keep the repository in place after linking, since the links point into it.
 
 ## First boot
-- At the first text login, use the root password created during installation and run passwd brian to set the normal user password before logging into SDDM. Do not put a plaintext password in this repository.
 - Confirm both NixOS and Windows Boot Manager remain available.
 - Check Wi-Fi, Bluetooth, audio, microphone, brightness keys, touchpad and touchscreen.
 - Test suspend/resume, external displays, USB-C docks and charger plug/unplug behavior.
