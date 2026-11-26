@@ -77,7 +77,7 @@ in
     starship zoxide fzf ripgrep fd bat eza
     thunar thunar-archive-plugin file-roller
     polkit_gnome networkmanagerapplet blueman pavucontrol
-    brightnessctl playerctl wl-clipboard cliphist grim slurp swappy swww
+    brightnessctl playerctl wl-clipboard cliphist grim slurp swappy hyprpaper
     udiskie gvfs wlogout nwg-look
     git gh neovim btop fastfetch firefox
     papirus-icon-theme nerd-fonts.jetbrains-mono noto-fonts-emoji
