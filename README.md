@@ -26,5 +26,5 @@ The configuration deliberately does not set a bootloader. Before installing, ins
 - shared/ — Hyprland, Waybar, Kitty, Fish, Fuzzel, SwayNC and helper scripts.
 - docs/ — installation, hardware, gaming and power guidance.
 
-## Build status
-No NixOS evaluation/build or physical Z16 test is claimed. Evaluate and build from a NixOS environment after generating hardware-configuration.nix and reviewing bootloader/partition settings. Test suspend/resume, Wi-Fi, audio, external displays, GPU selection, charger events and battery runtime before daily use.
+## Validation status
+GitHub Actions parses the Nix expressions and evaluates the full NixOS configuration using a CI-only sample hardware file and temporary systemd-boot setting. That verifies module/package evaluation, not an installation, full closure build or actual Z16 hardware. The real `z16` configuration still requires your generated `hardware-configuration.nix` and a bootloader choice reviewed for Windows dual boot. After installation, test suspend/resume, Wi-Fi, audio, external displays, GPU selection, charger events and battery runtime before daily use.
