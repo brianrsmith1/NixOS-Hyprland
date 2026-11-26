@@ -5,7 +5,7 @@ This repository configures a standalone NixOS system. It does not install Fedora
 ## Before touching partitions
 1. Back up important Windows files and verify the backup.
 2. Confirm Windows boots. If BitLocker/device encryption is enabled, save the recovery key.
-3. Create current NixOS installation media and boot it in UEFI mode.
+3. Use NixOS 26.05 installation media to match the flake's nixpkgs channel, and boot it in UEFI mode. If you choose another release, update the flake input and system.stateVersion together.
 4. Identify the existing Windows EFI System Partition, Windows recovery/data partitions and genuinely unused space. Do not format or delete Windows partitions.
 5. If the disk layout is unclear, stop. Do not guess partition device names or filesystem UUIDs.
 
