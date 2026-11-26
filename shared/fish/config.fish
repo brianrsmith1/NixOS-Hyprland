@@ -9,7 +9,4 @@ if status is-interactive
     alias ls eza
     alias cat bat
     alias grep rg
-    alias hm-switch 'home-manager switch --flake ~/Fedora-NixOS#brian@z16'
-    alias hm-update 'nix flake update ~/Fedora-NixOS'
-    alias fedora-update 'sudo dnf upgrade --refresh'
 end
