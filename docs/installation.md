@@ -1,89 +1,53 @@
-# Fedora + Windows installation and rollback
+# NixOS installation — ThinkPad Z16 Gen 1 with Windows dual boot
 
-## Intended disk and OS layout
+This repository configures a standalone NixOS system. It does not install Fedora and does not use Home Manager.
 
-- Fedora is the sole Linux operating system.
-- Windows remains installed as a permanent dual-boot option.
-- Nix is installed on Fedora as a package manager; NixOS is not installed.
-- This repository does not repartition disks, resize Windows, replace the EFI System Partition, or rewrite the bootloader automatically.
+## Before touching partitions
+1. Back up important Windows files and verify the backup.
+2. Confirm Windows boots. If BitLocker/device encryption is enabled, save the recovery key.
+3. Create current NixOS installation media and boot it in UEFI mode.
+4. Identify the existing Windows EFI System Partition, Windows recovery/data partitions and genuinely unused space. Do not format or delete Windows partitions.
+5. If the disk layout is unclear, stop. Do not guess partition device names or filesystem UUIDs.
 
-## Before installing Fedora
+Partitioning is intentionally not automated by this repository.
 
-1. Back up important Windows files and verify that the backup can be read.
-2. Confirm Windows boots normally and save any BitLocker recovery key if device encryption is enabled.
-3. Create Fedora installation media and verify it boots in UEFI mode.
-4. In the Fedora installer, use intended free space or a carefully reviewed partition layout. Do not delete the Windows EFI, recovery or data partitions.
-5. Keep the existing Windows Boot Manager entry. Verify both Fedora and Windows boot before changing boot order or firmware settings.
-
-Partitioning is a high-impact manual step. If the disk layout is unclear, stop and inspect it rather than guessing.
-
-## Fedora host setup
-
-1. Install Fedora Workstation (or another Fedora edition with a supported Wayland session).
-2. Update Fedora and reboot.
-3. Clone the repository and enter its directory:
-
-   ```bash
-   git clone https://github.com/brianrsmith1/Fedora-NixOS.git
-   cd Fedora-NixOS
-   ```
-
-4. Review `fedora/packages.txt` and run the top-level interactive setup:
-
-   ```bash
-   less fedora/packages.txt
-   bash install.sh
-   ```
-
-   The entry point runs `fedora/validate.sh`, then offers separate confirmations for Fedora host packages/RPM Fusion and the Nix daemon. It must be run as your regular user, not with `sudo`.
-
-5. If you prefer manual stages, run:
-
-   ```bash
-   bash fedora/validate.sh
-   bash fedora/install.sh
-   bash fedora/nix-setup.sh
-   ```
-
-6. Log out and back in (or reboot) so Nix group membership and service state are active. Verify with `nix --version`.
-
-The Fedora host installer does not configure disk partitions, Windows, EFI entries or the bootloader. It also does not activate Home Manager.
-
-## Home Manager setup
-
-Read [docs/nix-fedora.md](nix-fedora.md) before applying the profile. Confirm your Linux account is `brian`, or edit `home/home.nix` and the flake output attribute to match your actual username.
-
-From the repository root, run the interactive activation helper:
+## Generate the machine-specific hardware file
+Boot the NixOS live environment, partition and mount the intended NixOS filesystems manually, then generate the hardware config for the mounted target. For example, after mounting the target root at /mnt:
 
 ```bash
-bash fedora/home-manager-setup.sh
+sudo nixos-generate-config --root /mnt
 ```
 
-The helper checks that you are logged in as `brian`, verifies the Nix daemon, asks you to confirm that conflicting dotfiles are backed up, resolves the flake inputs and runs the standalone activation. If you prefer to activate manually, use:
+Copy the generated /mnt/etc/nixos/hardware-configuration.nix into the root of this cloned repository, beside configuration.nix. Review its filesystem UUIDs and mount points. Do not copy an example from another computer.
+
+## Review bootloader configuration before installation
+The supplied configuration.nix intentionally does not configure boot.loader. Merge in a bootloader configuration only after inspecting the actual UEFI/EFI System Partition arrangement and the NixOS installer documentation for the current release. Preserve the Windows Boot Manager files and entry. Do not blindly enable systemd-boot or GRUB with guessed EFI mount paths.
+
+The generated hardware-configuration.nix normally includes target filesystem mount points, but it does not make the bootloader decision for you.
+
+## Evaluate and install
+From the NixOS live environment, with target filesystems mounted and the repo available:
 
 ```bash
-nix run home-manager/release-26.05 -- switch --flake .#brian@z16
+nix flake check --show-trace
+nix eval .#nixosConfigurations.z16.config.system.build.toplevel.drvPath
 ```
 
-This resolves the selected Home Manager release and builds the standalone profile. Review the activation output before confirming. The first successful run generates `flake.lock`; keep it under version control for reproducible activations. A GitHub Actions workflow now checks Bash syntax, ShellCheck findings and evaluation of the Home Manager activation derivation; this does not replace a real install and hardware test.
+Only after evaluation succeeds, bootloader configuration has been reviewed, and target mount layout is correct, run:
 
-The configuration links selected shared Hyprland, Waybar, Kitty, Fish, Starship, Fuzzel, SwayNC and GTK files into your home directory. Back up pre-existing config files before first activation. Do not run `shared/install-dotfiles.sh` after Home Manager takes ownership of those same paths.
+```bash
+sudo nixos-install --flake .#z16
+```
 
-## First-boot validation
+Review every prompt and error. Do not force an install if it reports a missing mount, bootloader or filesystem problem.
 
-- Confirm Fedora and Windows remain selectable in the firmware/boot menu.
-- Check `hyprctl` version, Waybar, Fuzzel, notifications and lock screen.
-- Check audio input/output, Bluetooth, Wi-Fi, brightness keys and touchpad gestures.
-- Test suspend/resume, external displays and USB-C docks.
-- Run `glxinfo -B` and `vulkaninfo --summary`; verify AMD Mesa sees both GPUs.
-- Test Steam and one representative game using the RX 6500M only for that game.
-- Test OBS capture/encoding and a representative Kdenlive project before moving important work over.
+## First boot
+- Confirm both NixOS and Windows Boot Manager remain available.
+- Check Wi-Fi, Bluetooth, audio, microphone, brightness keys, touchpad and touchscreen.
+- Test suspend/resume, external displays, USB-C docks and charger plug/unplug behavior.
+- Run lspci -nnk, glxinfo -B and vulkaninfo --summary; confirm both Radeon GPUs use amdgpu.
+- Check powerprofilesctl get after AC/battery transitions.
+- Test games and creative applications only after installing the applications you need.
 
-## Rollback
-
-- **Home Manager:** inspect `home-manager generations` and activate the previous generation using its listed activation path.
-- **Dotfiles:** restore backups made before first activation. Avoid manually deleting files while Home Manager still manages them.
-- **Fedora:** use the previous kernel from the boot menu or Fedora package rollback guidance if an update causes a regression.
-- **Windows:** use the existing Windows Boot Manager entry. Do not delete Windows partitions or EFI files as a Linux troubleshooting shortcut.
-
-Keep a known-good Fedora kernel and Windows boot option until the new setup has passed multiple reboots.
+## Recovery
+Keep the NixOS installer USB and Windows recovery key available. Preserve a known-good Windows boot option. If the NixOS boot entry fails, use the firmware boot menu and select Windows Boot Manager; do not delete EFI files as a troubleshooting shortcut.
