@@ -49,6 +49,7 @@ in
   security.rtkit.enable = true;
   security.polkit.enable = true;
   services.dbus.enable = true;
+  hardware.bluetooth.enable = true;
   services.blueman.enable = true;
   services.fwupd.enable = true;
   services.upower.enable = true;
