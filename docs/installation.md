@@ -43,11 +43,21 @@ Review every prompt and error. Do not force an install if it reports a missing m
 
 ## Link the user desktop configuration
 
-After NixOS is installed and you have logged into the new user account, run this from the cloned repository:
+After the first reboot, log in at a text console as root and set the normal account password:
 
 ```bash
+passwd brian
+```
+
+Then log in as `brian`, clone the repository into your home directory, and link the configuration:
+
+```bash
+mkdir -p ~/src
+git clone https://github.com/brianrsmith1/NixOS-Hyprland.git ~/src/NixOS-Hyprland
+cd ~/src/NixOS-Hyprland
 bash shared/install-dotfiles.sh
 ```
+
 
 The script backs up existing config directories with a timestamp suffix, links the Hyprland/Waybar/Fish/Kitty/Fuzzel/SwayNC settings, and installs the discrete-GPU helper in ~/.local/bin. Keep the repository in place after linking, since the links point into it.
 
