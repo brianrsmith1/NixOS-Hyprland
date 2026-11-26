@@ -1,0 +1,6 @@
+/* Catppuccin Mocha — quiet notification surfaces */
+* { font-family: "JetBrainsMono Nerd Font", "Noto Sans", sans-serif; font-size: 12px; }
+.notification, .control-center { background: rgba(24, 24, 37, 0.97); color: #cdd6f4; border: 1px solid #45475a; border-radius: 10px; }
+.notification-content { padding: 8px; }
+.summary { color: #cdd6f4; font-weight: 600; }
+.body { color: #a6adc8; }
