@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  syntax:
-    name: Nix and shell syntax
+  syntax-and-evaluation:
+    name: Nix evaluation and shell syntax
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,5 +24,23 @@ jobs:
         run: |
           nix-instantiate --parse flake.nix >/dev/null
           nix-instantiate --parse configuration.nix >/dev/null
+      - name: Create CI-only hardware fixture
+        run: |
+          cat > hardware-configuration.nix <<'EOF'
+          { ... }: {
+            fileSystems."/" = {
+              device = "/dev/disk/by-label/ci-root";
+              fsType = "ext4";
+            };
+            fileSystems."/boot" = {
+              device = "/dev/disk/by-label/ci-efi";
+              fsType = "vfat";
+            };
+            boot.initrd.availableKernelModules = [ "nvme" "xhci_pci" "ahci" "usbhid" "usb_storage" ];
+            boot.kernelModules = [ "kvm-amd" ];
+          }
+          EOF
+      - name: Evaluate complete NixOS configuration
+        run: nix eval --show-trace .#nixosConfigurations.z16.config.system.build.toplevel.drvPath
       - name: Check shell syntax
         run: find . -type f -name '*.sh' -print0 | xargs -0 -r -n1 bash -n
