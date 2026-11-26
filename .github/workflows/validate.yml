@@ -40,6 +40,7 @@ jobs:
             boot.kernelModules = [ "kvm-amd" ];
           }
           EOF
+          git add hardware-configuration.nix
       - name: Evaluate complete NixOS configuration
         run: nix eval --show-trace .#nixosConfigurations.z16-ci.config.system.build.toplevel.drvPath
       - name: Check shell syntax
