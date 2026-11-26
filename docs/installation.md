@@ -41,6 +41,16 @@ sudo nixos-install --flake .#z16
 
 Review every prompt and error. Do not force an install if it reports a missing mount, bootloader or filesystem problem.
 
+## Link the user desktop configuration
+
+After NixOS is installed and you have logged into the new user account, run this from the cloned repository:
+
+```bash
+bash shared/install-dotfiles.sh
+```
+
+The script backs up existing config directories with a timestamp suffix, links the Hyprland/Waybar/Fish/Kitty/Fuzzel/SwayNC settings, and installs the discrete-GPU helper in ~/.local/bin. Keep the repository in place after linking, since the links point into it.
+
 ## First boot
 - Confirm both NixOS and Windows Boot Manager remain available.
 - Check Wi-Fi, Bluetooth, audio, microphone, brightness keys, touchpad and touchscreen.
