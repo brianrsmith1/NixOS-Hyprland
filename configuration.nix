@@ -83,7 +83,7 @@ in
     brightnessctl playerctl wl-clipboard cliphist grim slurp swappy hyprpaper
     udiskie gvfs wlogout nwg-look
     git gh neovim btop fastfetch firefox
-    papirus-icon-theme nerd-fonts.jetbrains-mono noto-fonts-emoji
+    papirus-icon-theme nerd-fonts.jetbrains-mono noto-fonts-color-emoji
     power-profiles-daemon fwupd
     pciutils usbutils lshw inxi lm_sensors smartmontools nvme-cli
     mesa-demos vulkan-tools libva-utils
