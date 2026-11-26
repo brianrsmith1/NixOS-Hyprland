@@ -8,7 +8,7 @@ let
       [[ "$(cat "$supply/type")" == "Mains" ]] || continue
       if [[ "$(cat "$supply/online")" == "1" ]]; then on_ac=1; break; fi
     done
-    available="$(${pkgs.power-profiles-daemon}/bin/powerprofilesctl list 2>/dev/null || true)"
+    available="${pkgs.power-profiles-daemon}/bin/powerprofilesctl list 2>/dev/null || true)"
     if (( on_ac )); then
       if grep -qi performance <<<"$available"; then ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set performance; else ${pkgs.power-profiles-daemon}/bin/powerprofilesctl set balanced; fi
     else
@@ -79,7 +79,7 @@ in
     udiskie gvfs wlogout nwg-look
     git gh neovim btop fastfetch firefox
     papirus-icon-theme nerd-fonts.jetbrains-mono noto-fonts-emoji
-    power-profiles-daemon
+    power-profiles-daemon fwupd
     pciutils usbutils lshw inxi lm_sensors smartmontools nvme-cli
     mesa-demos vulkan-tools libva-utils
   ];
