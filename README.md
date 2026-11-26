@@ -21,7 +21,8 @@ The flake pins nixpkgs to the NixOS 26.05 channel. Use matching 26.05 installati
 The configuration deliberately does not set a bootloader. Before installing, inspect the existing Windows EFI System Partition and configure a bootloader that preserves Windows Boot Manager. Do not blindly enable or replace EFI boot entries. Follow docs/installation.md carefully. After installation and first login, run bash shared/install-dotfiles.sh from the cloned repository to link the user desktop configuration. Back up existing config directories first.
 
 ## Repository layout
-- flake.nix — NixOS flake output .#z16.
+- flake.nix — NixOS flake outputs .#z16 and the CI-only .#z16-ci evaluation profile.
+- flake.lock — pins the exact nixpkgs revision for reproducible evaluations.
 - configuration.nix — system, desktop, hardware, power and package configuration.
 - shared/ — Hyprland, Waybar, Kitty, Fish, Fuzzel, SwayNC and helper scripts.
 - docs/ — installation, hardware, gaming and power guidance.
