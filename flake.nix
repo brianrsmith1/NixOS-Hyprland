@@ -6,5 +6,17 @@
       system = "x86_64-linux";
       modules = [ ./configuration.nix ];
     };
+    # CI-only evaluation profile. It does not change the real z16 configuration
+    # or prescribe a bootloader for the Windows dual-boot installation.
+    nixosConfigurations.z16-ci = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        ./configuration.nix
+        ({ ... }: {
+          boot.loader.systemd-boot.enable = true;
+          boot.loader.efi.canTouchEfiVariables = false;
+        })
+      ];
+    };
   };
 }
