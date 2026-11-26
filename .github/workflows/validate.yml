@@ -41,6 +41,11 @@ jobs:
           }
           EOF
           git add hardware-configuration.nix
+      - name: Generate and display flake lockfile
+        run: |
+          nix flake lock
+          cat flake.lock
+          git add flake.lock
       - name: Evaluate complete NixOS configuration
         run: nix eval --show-trace .#nixosConfigurations.z16-ci.config.system.build.toplevel.drvPath
       - name: Check shell syntax
