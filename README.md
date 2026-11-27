@@ -2,7 +2,7 @@
 
 A standalone NixOS Flake for the Lenovo ThinkPad Z16 Gen 1. It targets the Ryzen 9 PRO 6950H, Radeon 680M integrated GPU, Radeon RX 6500M discrete GPU, 32 GB RAM and OLED touchscreen.
 
-This repository is the **NixOS-only** option. It does not install Fedora and does not use Home Manager. Windows 11 is intended to remain available as a separate dual-boot operating system on the physical laptop.
+This repository is the **NixOS-only** option. Windows 11 is intended to remain available as a separate dual-boot operating system on the physical laptop.
 
 > **Important:** This is a hardware-targeted configuration, not a one-command installer. The repository does not contain a generated `hardware-configuration.nix` and deliberately does not choose a bootloader for the physical Windows dual-boot installation. Read [docs/installation.md](docs/installation.md) before partitioning or installing. For a disposable virtual machine, follow [docs/vmware-testing.md](docs/vmware-testing.md).
 
