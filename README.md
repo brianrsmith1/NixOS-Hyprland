@@ -1,31 +1,72 @@
-# NixOS Hyprland — ThinkPad Z16 Gen 1
+# NixOS + Hyprland — ThinkPad Z16 Gen 1
 
-Standalone NixOS + Hyprland Flake for the Lenovo ThinkPad Z16 Gen 1: Ryzen 9 PRO 6950H, Radeon 680M iGPU, Radeon RX 6500M dGPU (4 GB VRAM), 32 GB RAM, 1 TB SSD and OLED touchscreen.
+A standalone NixOS Flake for the Lenovo ThinkPad Z16 Gen 1. It targets the Ryzen 9 PRO 6950H, Radeon 680M integrated GPU, Radeon RX 6500M discrete GPU, 32 GB RAM and OLED touchscreen.
 
-## Scope
-This is the NixOS-only project. It does not depend on Fedora or Home Manager. The NixOS system configuration installs Hyprland, Waybar, core desktop tools, AMD graphics support, audio, networking and power-profile integration. Windows 11 is intended to remain a permanent dual-boot option.
+This repository is the **NixOS-only** option. It does not install Fedora and does not use Home Manager. Windows 11 is intended to remain available as a separate dual-boot operating system on the physical laptop.
 
-## Desktop workflow
-Muted Catppuccin Mocha/graphite styling, slim Waybar, Kitty, Fuzzel and SwayNC. Workspaces: 1 Main, 2 Terminal/Development, 3 Creative, 4 Communication, 5 Gaming. Super+1..5 switches workspaces; Super+Shift+1..5 moves the focused window.
+> **Important:** This is a hardware-targeted configuration, not a one-command installer. The repository does not contain a generated `hardware-configuration.nix` and deliberately does not choose a bootloader for the physical Windows dual-boot installation. Read [docs/installation.md](docs/installation.md) before partitioning or installing. For a disposable virtual machine, follow [docs/vmware-testing.md](docs/vmware-testing.md).
+
+## Choose your installation path
+
+| Goal | Instructions |
+|---|---|
+| Test the NixOS configuration in VMware | [VMware testing guide](docs/vmware-testing.md) |
+| Install on the ThinkPad alongside Windows 11 | [Physical dual-boot installation guide](docs/installation.md#physical-thinkpad-installation-windows-dual-boot) |
+| Understand the hardware and GPU setup | [Hardware guide](docs/hardware.md) |
+| Power, thermals, OLED and battery | [Power and longevity guide](docs/power-and-longevity.md) |
+| Gaming and hybrid graphics | [Gaming guide](docs/gaming.md) |
+
+## What this configuration provides
+
+- Hyprland, SDDM, Waybar, Kitty, Fuzzel and SwayNC.
+- AMDGPU firmware, Mesa graphics and Vulkan support.
+- PipeWire audio, Bluetooth, NetworkManager, polkit and XDG desktop portals.
+- Power Profiles Daemon with AC/battery profile selection.
+- A Fish-based shell environment and common command-line tools.
+- A discrete-GPU launcher using `DRI_PRIME=1` for individual applications.
 
 ## Hardware strategy
+
 - Radeon 680M is the default desktop GPU.
-- RX 6500M is selected for individual games/apps with DRI_PRIME=1.
-- AC: Performance when available, otherwise Balanced. Battery: Power Saver when available, otherwise Balanced.
-- OLED: moderate battery brightness, screen blanking and dark graphite theme. Dark UI alone does not prevent burn-in.
-- No speculative undervolting, fixed clocks or firmware tweaks.
+- Radeon RX 6500M is selected per application with `run-on-discrete-gpu` or `DRI_PRIME=1`.
+- On AC, request Performance when the platform exposes it; otherwise use Balanced.
+- On battery, request Power Saver when available; otherwise use Balanced.
+- Use moderate OLED brightness, screen blanking and a dark graphite theme. A dark theme alone does not prevent burn-in.
+- No speculative undervolting, fixed clocks, fan curves or firmware modifications.
 
-## Important install warning
-The flake pins nixpkgs to the NixOS 26.05 channel. Use matching 26.05 installation media, or update the flake input and system.stateVersion together if you intentionally target a different release. The default account in configuration.nix is brian; edit users.users.brian if your Linux username differs. This repository is a configuration starting point, not a tested one-click installer. hardware-configuration.nix is machine-generated and intentionally not included. Generate it from the NixOS live installer and place it beside configuration.nix.
+The Z16 Gen 1 shipped in multiple configurations. Confirm the actual hardware before relying on these assumptions.
 
-The configuration deliberately does not set a bootloader. Before installing, inspect the existing Windows EFI System Partition and configure a bootloader that preserves Windows Boot Manager. Do not blindly enable or replace EFI boot entries. Follow docs/installation.md carefully. After installation and first login, run bash shared/install-dotfiles.sh from the cloned repository to link the user desktop configuration. Back up existing config directories first.
+## Before you install
+
+1. Back up important files.
+2. On the physical laptop, confirm Windows boots and save the BitLocker/device-encryption recovery key if encryption is enabled.
+3. Use NixOS 26.05 installation media to match the pinned `nixos-26.05` nixpkgs input and `system.stateVersion = "26.05"`.
+4. Generate your own `hardware-configuration.nix` from the target system. Never reuse another machine's hardware file.
+5. Review the EFI System Partition and bootloader plan before installing alongside Windows. Never format the Windows EFI partition or guess partition names.
 
 ## Repository layout
-- flake.nix — NixOS flake outputs .#z16 and the CI-only .#z16-ci evaluation profile.
-- flake.lock — pins the exact nixpkgs revision for reproducible evaluations.
-- configuration.nix — system, desktop, hardware, power and package configuration.
-- shared/ — Hyprland, Waybar, Kitty, Fish, Fuzzel, SwayNC and helper scripts.
-- docs/ — installation, hardware, gaming and power guidance.
+
+- `flake.nix` — NixOS Flake outputs `.#z16` and the CI-only `.#z16-ci` evaluation profile.
+- `flake.lock` — pins the exact nixpkgs revision.
+- `configuration.nix` — system, desktop, hardware, power and package configuration.
+- `shared/` — Hyprland, Waybar, Kitty, Fish, Fuzzel, SwayNC and helper scripts.
+- `docs/` — installation, VMware, hardware, gaming and power guidance.
+
+## Install the user desktop configuration
+
+After NixOS has booted and you have logged into the normal account, clone this repository into your home directory and run:
+
+```bash
+mkdir -p ~/src
+git clone https://github.com/brianrsmith1/NixOS-Hyprland.git ~/src/NixOS-Hyprland
+cd ~/src/NixOS-Hyprland
+bash shared/install-dotfiles.sh
+```
+
+The script backs up existing non-symlink config directories with a timestamp suffix, then links the repository's Hyprland, Waybar, Kitty, Fish, Fuzzel, SwayNC and related settings. It also installs `run-on-discrete-gpu` under `~/.local/bin`. Keep the repository in place after linking because the symlinks point into it. Ensure `~/.local/bin` is on your PATH.
 
 ## Validation status
-GitHub Actions parses the Nix expressions and evaluates the full NixOS configuration using a CI-only sample hardware file and temporary systemd-boot setting. That verifies module/package evaluation, not an installation, full closure build or actual Z16 hardware. The real `z16` configuration still requires your generated `hardware-configuration.nix` and a bootloader choice reviewed for Windows dual boot. After installation, test suspend/resume, Wi-Fi, audio, external displays, GPU selection, charger events and battery runtime before daily use.
+
+GitHub Actions parses the Nix expressions and evaluates the full NixOS configuration using a CI-only sample hardware file and temporary systemd-boot settings. This checks NixOS module and package evaluation; it does **not** prove that the system has been installed, that the full closure builds, or that the configuration works on a physical Z16.
+
+After installation, test suspend/resume, Wi-Fi, audio, brightness controls, touchscreen, external displays, GPU selection, charger events and battery runtime before choosing it as your daily driver.
