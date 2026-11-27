@@ -123,7 +123,37 @@ Identify, by size and filesystem, all of the following:
 
 **Stop if you cannot identify every partition confidently.** Do not delete, format, resize or relabel any Windows, recovery or EFI partition. This repository does not automate physical partitioning.
 
-Create a Linux root partition only in the unallocated space. Choose a filesystem and mount layout deliberately. For a simple ext4 root, after creating the new Linux partition, format only that newly created partition and mount it at `/mnt`. Do not run `mkfs` against the Windows ESP or any Windows partition.
+Create a Linux root partition only in the unallocated space. For this machine, allow at least 100–150 GiB for NixOS if you want room for generations, development tools and applications. The exact size is your choice; leave the rest of the disk untouched if you want to keep it available for later.
+
+A graphical partition editor can make it easier to distinguish the unallocated region from Windows partitions. In the graphical live environment, you can launch GParted if needed:
+
+```bash
+nix-shell -p gparted --run 'sudo gparted'
+```
+
+In GParted, select the internal SSD by its model and size, select only the unallocated region, create one new **ext4** partition there, apply the operation, and exit. Do not change the NTFS, recovery or EFI partitions. If the disk or free-space region is not unmistakable, cancel and stop.
+
+After creating the new Linux root partition, identify its device path and the existing ESP device path again with `lsblk -f`. The following uses placeholders intentionally; replace them with the exact paths you identified. Do not type the angle-bracket placeholders literally:
+
+```bash
+sudo mkfs.ext4 -L nixos /dev/<new-root-partition>
+sudo mount /dev/<new-root-partition> /mnt
+sudo mkdir -p /mnt/boot
+sudo mount /dev/<existing-efi-system-partition> /mnt/boot
+```
+
+The `mkfs.ext4` command is for the newly created Linux root partition only. **Never run `mkfs` on the existing Windows EFI System Partition or any Windows partition.** The ESP mount command only mounts it; it does not format it.
+
+Verify the mounts and available ESP space before proceeding:
+
+```bash
+lsblk -f
+findmnt /mnt
+findmnt /mnt/boot
+df -h /mnt/boot
+```
+
+If the mount paths are wrong, unmount and correct them before generating the hardware configuration.
 
 ### EFI and bootloader decision — required before installation
 
